@@ -20,12 +20,17 @@ public class EulerMethod extends Grid {
         step = (xMax - x0) / (float) super.size;
     }
 
-    protected void calculateFunction() {
+    protected float CalculateY(int i)
+    {
+        return super.AxisY[i - 1] + step * rhs.calculate(AxisX[i - 1], AxisY[i - 1]);
+    }
+
+    private void calculateFunction() {
         super.AxisX[0] = x0;
         super.AxisY[0] = y0;
         for (int i = 1; i < size + 1; i++) {
             super.AxisX[i] = super.AxisX[i - 1] + step;
-            super.AxisY[i] = super.AxisY[i - 1] + step * rhs.calculate(AxisX[i - 1], AxisY[i - 1]);
+            super.AxisY[i] = CalculateY(i);
         }
     }
 
