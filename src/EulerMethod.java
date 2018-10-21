@@ -12,6 +12,7 @@ public class EulerMethod extends Grid {
         this.x0 = x0;
         this.y0 = y0;
         this.xMax = xMax;
+        this.rhs = new RHS();
         calculateStep();
         calculateFunction();
     }
