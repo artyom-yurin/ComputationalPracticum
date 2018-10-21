@@ -14,16 +14,8 @@ public class Grid {
         return AxisX;
     }
 
-    public void setAxisX(float[] axisX) {
-        AxisX = axisX;
-    }
-
     public float[] getAxisY() {
         return AxisY;
-    }
-
-    public void setAxisY(float[] axisY) {
-        AxisY = axisY;
     }
 
     public int getSize()
