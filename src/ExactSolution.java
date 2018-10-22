@@ -15,18 +15,17 @@ public class ExactSolution extends Grid {
     }
 
     private void calculateStep() {
-        step = (xMax - x0) / (float) super.size;
+        step = (xMax - x0) / (float) (super.size - 1);
     }
 
     private void calculateFunction() {
         super.AxisX[0] = x0;
         super.AxisY[0] = y0;
-        for (int i = 1; i < super.size + 1; i++) {
+        for (int i = 1; i < super.size; i++) {
             super.AxisX[i] = super.AxisX[i - 1] + step;
-            super.AxisY[i] = 1 - super.AxisX[i];
+            super.AxisY[i] = - super.AxisX[i] * super.AxisX[i] + super.AxisX[i] - (y0 + x0 * x0 - x0 + 1)/(float) Math.exp(-x0) * (float)Math.exp(-super.AxisX[i]);
         }
     }
-
     @Override
     public void setSize(int size) {
         super.setSize(size);

@@ -18,7 +18,7 @@ public class EulerMethod extends Grid {
     }
 
     private void calculateStep() {
-        step = (xMax - x0) / (float) super.size;
+        step = (xMax - x0) / (float) (super.size - 1);
     }
 
     protected float CalculateY(int i)
@@ -29,7 +29,7 @@ public class EulerMethod extends Grid {
     private void calculateFunction() {
         super.AxisX[0] = x0;
         super.AxisY[0] = y0;
-        for (int i = 1; i < size + 1; i++) {
+        for (int i = 1; i < size; i++) {
             super.AxisX[i] = super.AxisX[i - 1] + step;
             super.AxisY[i] = CalculateY(i);
         }
