@@ -1,19 +1,21 @@
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class Main extends Application {
+
+    enum State {SOLUTION, ERROR}
+
+    private State currentState;
 
     public static void main(String[] args) {
         launch(args);
@@ -21,32 +23,57 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        currentState = State.SOLUTION;
+        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
         primaryStage.setTitle("Computing Assignment by AY");
 
         final NumberAxis xAxis = new NumberAxis();
         final NumberAxis yAxis = new NumberAxis();
 
-        final LineChart<Number,Number> lineChart = new LineChart<Number, Number>(xAxis,yAxis);
-        lineChart.setTitle("Solution of y' = - y - x");
+        final LineChart<Number, Number> lineChart = new LineChart<Number, Number>(xAxis, yAxis);
+        lineChart.setTitle("Solution of y' = - y - x*x");
 
-        /*BorderPane border = new BorderPane();
-        border.setPadding(new Insets(20, 0, 20, 20));*/
 
-        Button btnEuler = new Button("Euler");
-        Button btnExact = new Button("Exact");
-        Button btnImprovedEuler = new Button("Improved Euler");
-        Button btnKutta = new Button("Kutta");
-        Button btnClear = new Button("Clear");
+        MenuBar menuBar = new MenuBar();
 
-        btnEuler.setMaxWidth(Double.MAX_VALUE);
-        btnExact.setMaxWidth(Double.MAX_VALUE);
-        btnImprovedEuler.setMaxWidth(Double.MAX_VALUE);
-        btnKutta.setMaxWidth(Double.MAX_VALUE);
-        btnClear.setMaxWidth(Double.MAX_VALUE);
+        Menu modeMenu = new Menu("Mode");
 
-        VBox vbButtons = new VBox();
-        vbButtons.setSpacing(10);
-        vbButtons.setPadding(new Insets(0, 20, 10, 20));
+        RadioMenuItem btnGraphics = new RadioMenuItem("Solutions");
+        RadioMenuItem btnErrors = new RadioMenuItem("Errors");
+
+        ToggleGroup group = new ToggleGroup();
+        btnGraphics.setToggleGroup(group);
+        btnErrors.setToggleGroup(group);
+        btnGraphics.setSelected(true);
+
+        modeMenu.getItems().addAll(btnGraphics, btnErrors);
+
+        menuBar.getMenus().addAll(modeMenu);
+        btnGraphics.setOnAction(e -> {
+            if(currentState != State.SOLUTION)
+            {
+                lineChart.getData().clear();
+                lineChart.setTitle("Solution of y' = - y - x*x");
+                currentState = State.SOLUTION;
+            }
+        });
+
+        btnErrors.setOnAction(e -> {
+            if(currentState != State.ERROR) {
+                lineChart.getData().clear();
+                lineChart.setTitle("Error analysis of y' = - y - x*x");
+                currentState = State.ERROR;
+            }
+        });
+
+        Button btnEuler = addVerticalButton("Euler", primScreenBounds);
+        Button btnExact = addVerticalButton("Exact", primScreenBounds);
+        Button btnImprovedEuler = addVerticalButton("Improved Euler", primScreenBounds);
+        Button btnKutta = addVerticalButton("Kutta", primScreenBounds);
+        Button btnClear = addVerticalButton("Clear", primScreenBounds);
+
+        VBox vbButtons = new VBox(10);
+        vbButtons.setAlignment(Pos.CENTER);
         vbButtons.getChildren().addAll(btnEuler, btnExact, btnImprovedEuler, btnKutta, btnClear);
 
         btnClear.setOnAction(e -> {
@@ -58,15 +85,13 @@ public class Main extends Application {
         XYChart.Series series = new XYChart.Series();
         series.setName("Exact Solution");
 
-        ExactSolution exactSolution = new ExactSolution(10, 0, 1, 10);
-        for(int i = 0; i < exactSolution.size; i++)
-        {
+        ExactSolution exactSolution = new ExactSolution(10, 10, -10, 15);
+        for (int i = 0; i < exactSolution.size; i++) {
             series.getData().add(new XYChart.Data(exactSolution.AxisX[i], exactSolution.AxisY[i]));
         }
 
         btnExact.setOnAction(e -> {
-            if(!lineChart.getData().contains(series))
-            {
+            if (!lineChart.getData().contains(series)) {
                 lineChart.getData().add(series);
             }
         });
@@ -74,15 +99,13 @@ public class Main extends Application {
         XYChart.Series series2 = new XYChart.Series();
         series2.setName("Euler's Method");
 
-        EulerMethod eulerMethod= new EulerMethod(10, 0, 1, 10);
-        for(int i = 0; i < eulerMethod.size; i++)
-        {
+        EulerMethod eulerMethod = new EulerMethod(10, 10, -10, 15);
+        for (int i = 0; i < eulerMethod.size; i++) {
             series2.getData().add(new XYChart.Data(eulerMethod.AxisX[i], eulerMethod.AxisY[i]));
         }
 
         btnEuler.setOnAction(e -> {
-            if(!lineChart.getData().contains(series2))
-            {
+            if (!lineChart.getData().contains(series2)) {
                 lineChart.getData().add(series2);
             }
         });
@@ -90,15 +113,13 @@ public class Main extends Application {
         XYChart.Series series3 = new XYChart.Series();
         series3.setName("Improved Euler");
 
-        ImprovedEulerMethod improvedEulerMethod = new ImprovedEulerMethod(10, 0, 1, 10);
-        for(int i = 0; i < improvedEulerMethod.size; i++)
-        {
+        ImprovedEulerMethod improvedEulerMethod = new ImprovedEulerMethod(10, 10, -10, 15);
+        for (int i = 0; i < improvedEulerMethod.size; i++) {
             series3.getData().add(new XYChart.Data(improvedEulerMethod.AxisX[i], improvedEulerMethod.AxisY[i]));
         }
 
         btnImprovedEuler.setOnAction(e -> {
-            if(!lineChart.getData().contains(series3))
-            {
+            if (!lineChart.getData().contains(series3)) {
                 lineChart.getData().add(series3);
             }
         });
@@ -106,29 +127,44 @@ public class Main extends Application {
         XYChart.Series series4 = new XYChart.Series();
         series4.setName("Kutta Method");
 
-        KuttaMethod kuttaMethod = new KuttaMethod(10, 0, 1, 10);
-        for(int i = 0; i < kuttaMethod.size; i++)
-        {
+        KuttaMethod kuttaMethod = new KuttaMethod(10, 10, -10, 15);
+        for (int i = 0; i < kuttaMethod.size; i++) {
             series4.getData().add(new XYChart.Data(kuttaMethod.AxisX[i], kuttaMethod.AxisY[i]));
         }
 
         btnKutta.setOnAction(e -> {
-            if(!lineChart.getData().contains(series4))
-            {
+            if (!lineChart.getData().contains(series4)) {
                 lineChart.getData().add(series4);
             }
         });
 
-        StackPane layout= new StackPane();
+        BorderPane layout = new BorderPane();
+        layout.setTop(menuBar);
+        layout.setLeft(vbButtons);
+        layout.setCenter(lineChart);
         Scene scene = new Scene(layout, 400, 200);
-        layout.getChildren().add(lineChart);
-        layout.getChildren().add(vbButtons);
         primaryStage.setScene(scene);
         primaryStage.show();
-        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        primaryStage.setHeight(primScreenBounds.getHeight() / 2);
-        primaryStage.setWidth(primScreenBounds.getWidth() / 2);
+        vbButtons.setMinWidth(primScreenBounds.getHeight() / 5);
+        primaryStage.setMaximized(true);
+        primaryStage.setMinHeight(400);
+        primaryStage.setMinWidth(800);
         primaryStage.setX((primScreenBounds.getWidth() - primaryStage.getWidth()) / 2);
         primaryStage.setY((primScreenBounds.getHeight() - primaryStage.getHeight()) / 2);
+    }
+
+    private Button addVerticalButton(String name, Rectangle2D screenSize) {
+        Button newButton = new Button(name);
+        newButton.setMaxHeight(Double.MAX_VALUE);
+        newButton.setMinWidth(screenSize.getWidth() / 10);
+        newButton.setAlignment(Pos.CENTER);
+        return newButton;
+    }
+
+    private Button addHorizontalButton(String name, Rectangle2D screenSize) {
+        Button newButton = new Button(name);
+        newButton.setStyle("-fx-focus-color: transparent;");
+        newButton.setMaxHeight(Double.MAX_VALUE);
+        return newButton;
     }
 }
