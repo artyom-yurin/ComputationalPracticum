@@ -73,7 +73,7 @@ public class Main extends Application {
         Button btnClear = addVerticalButton("Clear", primScreenBounds);
 
         VBox vbButtons = new VBox(10);
-        vbButtons.setAlignment(Pos.CENTER);
+        vbButtons.setAlignment(Pos.BOTTOM_CENTER);
         vbButtons.getChildren().addAll(btnEuler, btnExact, btnImprovedEuler, btnKutta, btnClear);
 
         btnClear.setOnAction(e -> {
@@ -145,7 +145,7 @@ public class Main extends Application {
         Scene scene = new Scene(layout, 400, 200);
         primaryStage.setScene(scene);
         primaryStage.show();
-        vbButtons.setMinWidth(primScreenBounds.getHeight() / 5);
+        vbButtons.setPadding(new Insets(0, 0, 10, 10));
         primaryStage.setMaximized(true);
         primaryStage.setMinHeight(400);
         primaryStage.setMinWidth(800);
