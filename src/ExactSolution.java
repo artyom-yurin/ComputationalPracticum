@@ -23,7 +23,7 @@ public class ExactSolution extends Grid {
         super.AxisY[0] = y0;
         for (int i = 1; i < super.size; i++) {
             super.AxisX[i] = super.AxisX[i - 1] + step;
-            super.AxisY[i] = - super.AxisX[i] * super.AxisX[i] + super.AxisX[i] - (y0 + x0 * x0 - x0 + 1)/(float) Math.exp(-x0) * (float)Math.exp(-super.AxisX[i]);
+            super.AxisY[i] = - super.AxisX[i] * super.AxisX[i] + 2 * super.AxisX[i] - 2 + (y0 + x0 * x0 - 2 * x0 + 2) * (float)Math.exp(x0 - super.AxisX[i]);
         }
     }
     @Override
