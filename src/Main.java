@@ -11,19 +11,22 @@ import javafx.scene.layout.*;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import javax.swing.*;
+
 public class Main extends Application {
-
-    enum State {SOLUTION, ERROR}
-
-    private State currentState;
 
     public static void main(String[] args) {
         launch(args);
     }
 
+    int size = 10;
+    int x0 = 10;
+    int y0 = -10;
+    int xMax = 15;
+
     @Override
     public void start(Stage primaryStage) {
-        currentState = State.SOLUTION;
+        ApplicationStatus.init();
         Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
         primaryStage.setTitle("Computing Assignment by AY");
 
@@ -49,22 +52,7 @@ public class Main extends Application {
         modeMenu.getItems().addAll(btnGraphics, btnErrors);
 
         menuBar.getMenus().addAll(modeMenu);
-        btnGraphics.setOnAction(e -> {
-            if(currentState != State.SOLUTION)
-            {
-                lineChart.getData().clear();
-                lineChart.setTitle("Solution of y' = - y - x*x");
-                currentState = State.SOLUTION;
-            }
-        });
 
-        btnErrors.setOnAction(e -> {
-            if(currentState != State.ERROR) {
-                lineChart.getData().clear();
-                lineChart.setTitle("Error analysis of y' = - y - x*x");
-                currentState = State.ERROR;
-            }
-        });
 
         Button btnEuler = addVerticalButton("Euler", primScreenBounds);
         Button btnExact = addVerticalButton("Exact", primScreenBounds);
@@ -74,67 +62,64 @@ public class Main extends Application {
 
         VBox vbButtons = new VBox(10);
         vbButtons.setAlignment(Pos.BOTTOM_CENTER);
-        vbButtons.getChildren().addAll(btnEuler, btnExact, btnImprovedEuler, btnKutta, btnClear);
+        vbButtons.getChildren().addAll(btnExact, btnEuler, btnImprovedEuler, btnKutta, btnClear);
+
+        btnGraphics.setOnAction(e -> {
+            if (ApplicationStatus.currentState != ApplicationStatus.State.SOLUTION) {
+                clearLineChart(lineChart);
+                lineChart.setTitle("Solution of y' = - y - x*x");
+                ApplicationStatus.currentState = ApplicationStatus.State.SOLUTION;
+                btnExact.setVisible(true);
+            }
+        });
+
+        btnErrors.setOnAction(e -> {
+            if (ApplicationStatus.currentState != ApplicationStatus.State.ERROR) {
+                clearLineChart(lineChart);
+                lineChart.setTitle("Error analysis of y' = - y - x*x");
+                ApplicationStatus.currentState = ApplicationStatus.State.ERROR;
+                btnExact.setVisible(false);
+            }
+        });
+
 
         btnClear.setOnAction(e -> {
-            lineChart.setAnimated(false);
-            lineChart.getData().clear();
-            lineChart.setAnimated(true);
+            clearLineChart(lineChart);
         });
 
-        XYChart.Series series = new XYChart.Series();
-        series.setName("Exact Solution");
-
-        ExactSolution exactSolution = new ExactSolution(10, 10, -10, 15);
-        for (int i = 0; i < exactSolution.size; i++) {
-            series.getData().add(new XYChart.Data(exactSolution.AxisX[i], exactSolution.AxisY[i]));
-        }
+        ExactSolution exactSolution = new ExactSolution(size, x0, y0, xMax);
 
         btnExact.setOnAction(e -> {
-            if (!lineChart.getData().contains(series)) {
-                lineChart.getData().add(series);
-            }
+            ApplicationStatus.isExactPresent = addSeries(lineChart, exactSolution, ApplicationStatus.isExactPresent, "Exact Solution");
         });
 
-        XYChart.Series series2 = new XYChart.Series();
-        series2.setName("Euler's Method");
-
-        EulerMethod eulerMethod = new EulerMethod(10, 10, -10, 15);
-        for (int i = 0; i < eulerMethod.size; i++) {
-            series2.getData().add(new XYChart.Data(eulerMethod.AxisX[i], eulerMethod.AxisY[i]));
-        }
-
+        EulerMethod eulerMethod = new EulerMethod(size, x0, y0, xMax);
+        Grid eulerError = GetError(eulerMethod, exactSolution, size);
         btnEuler.setOnAction(e -> {
-            if (!lineChart.getData().contains(series2)) {
-                lineChart.getData().add(series2);
+            if (ApplicationStatus.currentState == ApplicationStatus.State.SOLUTION) {
+                ApplicationStatus.isEulerPresent = addSeries(lineChart, eulerMethod, ApplicationStatus.isEulerPresent, "Euler's Method");
+            } else if (ApplicationStatus.currentState == ApplicationStatus.State.ERROR) {
+                ApplicationStatus.isEulerPresent = addSeries(lineChart, eulerError, ApplicationStatus.isEulerPresent, "Euler's Error");
             }
         });
 
-        XYChart.Series series3 = new XYChart.Series();
-        series3.setName("Improved Euler");
-
-        ImprovedEulerMethod improvedEulerMethod = new ImprovedEulerMethod(10, 10, -10, 15);
-        for (int i = 0; i < improvedEulerMethod.size; i++) {
-            series3.getData().add(new XYChart.Data(improvedEulerMethod.AxisX[i], improvedEulerMethod.AxisY[i]));
-        }
-
+        ImprovedEulerMethod improvedEulerMethod = new ImprovedEulerMethod(size, x0, y0, xMax);
+        Grid improvedEulerError = GetError(improvedEulerMethod, exactSolution, size);
         btnImprovedEuler.setOnAction(e -> {
-            if (!lineChart.getData().contains(series3)) {
-                lineChart.getData().add(series3);
+            if (ApplicationStatus.currentState == ApplicationStatus.State.SOLUTION) {
+                ApplicationStatus.isImprovedPresent = addSeries(lineChart, improvedEulerMethod, ApplicationStatus.isImprovedPresent, "Improved Euler");
+            } else if (ApplicationStatus.currentState == ApplicationStatus.State.ERROR) {
+                ApplicationStatus.isImprovedPresent = addSeries(lineChart, improvedEulerError, ApplicationStatus.isImprovedPresent, "Improved Euler Error");
             }
         });
 
-        XYChart.Series series4 = new XYChart.Series();
-        series4.setName("Kutta Method");
-
-        KuttaMethod kuttaMethod = new KuttaMethod(10, 10, -10, 15);
-        for (int i = 0; i < kuttaMethod.size; i++) {
-            series4.getData().add(new XYChart.Data(kuttaMethod.AxisX[i], kuttaMethod.AxisY[i]));
-        }
-
+        KuttaMethod kuttaMethod = new KuttaMethod(size, x0, y0, xMax);
+        Grid kuttaError = GetError(kuttaMethod, exactSolution, size);
         btnKutta.setOnAction(e -> {
-            if (!lineChart.getData().contains(series4)) {
-                lineChart.getData().add(series4);
+            if (ApplicationStatus.currentState == ApplicationStatus.State.SOLUTION) {
+                ApplicationStatus.isKuttaPresent = addSeries(lineChart, kuttaMethod, ApplicationStatus.isKuttaPresent, "Kutta Method");
+            } else if (ApplicationStatus.currentState == ApplicationStatus.State.ERROR) {
+                ApplicationStatus.isKuttaPresent = addSeries(lineChart, kuttaError, ApplicationStatus.isKuttaPresent, "Kutta Error");
             }
         });
 
@@ -153,18 +138,38 @@ public class Main extends Application {
         primaryStage.setY((primScreenBounds.getHeight() - primaryStage.getHeight()) / 2);
     }
 
+    private Grid GetError(Grid someMethod, Grid exactSolution, int size) {
+        Grid error = new Grid(size);
+        for (int i = 0; i < error.size; i++) {
+            error.AxisX[i] = exactSolution.AxisX[i];
+            error.AxisY[i] = exactSolution.AxisY[i] - someMethod.AxisY[i];
+        }
+        return error;
+    }
+
+    private boolean addSeries(LineChart<Number, Number> lineChart, Grid solution, boolean presentFlag, final String string) {
+        if (!presentFlag) {
+            XYChart.Series series = new XYChart.Series();
+            series.setName(string);
+            for (int i = 0; i < solution.size; i++) {
+                series.getData().add(new XYChart.Data(solution.AxisX[i], solution.AxisY[i]));
+            }
+            lineChart.getData().add(series);
+            presentFlag = true;
+        }
+        return presentFlag;
+    }
+
+    private void clearLineChart(LineChart lineChart) {
+        lineChart.getData().clear();
+        ApplicationStatus.clearGraphics();
+    }
+
     private Button addVerticalButton(String name, Rectangle2D screenSize) {
         Button newButton = new Button(name);
         newButton.setMaxHeight(Double.MAX_VALUE);
-        newButton.setMinWidth(screenSize.getWidth() / 10);
+        newButton.setPrefWidth(screenSize.getWidth() / 10);
         newButton.setAlignment(Pos.CENTER);
-        return newButton;
-    }
-
-    private Button addHorizontalButton(String name, Rectangle2D screenSize) {
-        Button newButton = new Button(name);
-        newButton.setStyle("-fx-focus-color: transparent;");
-        newButton.setMaxHeight(Double.MAX_VALUE);
         return newButton;
     }
 }
