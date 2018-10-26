@@ -4,11 +4,11 @@ public class KuttaMethod extends EulerMethod {
     }
 
     @Override
-    protected float CalculateY(int i) {
+    protected float CalculateY(int i, float step) {
         float k1 = getRhs().calculate(super.AxisX[i - 1], super.AxisY[i - 1]);;
-        float k2 = getRhs().calculate(super.AxisX[i - 1] + super.getStep() / 2, super.AxisY[i - 1] + super.getStep() / 2 * k1);
-        float k3 = getRhs().calculate(super.AxisX[i - 1] + super.getStep() / 2, super.AxisY[i - 1] + super.getStep() / 2 * k2);
-        float k4 = getRhs().calculate(super.AxisX[i], super.AxisY[i - 1] + super.getStep()* k3);
-        return super.AxisY[i-1] + super.getStep() / 6 * (k1 + 2 * k2 + 2 * k3 + k4);
+        float k2 = getRhs().calculate(super.AxisX[i - 1] + step / 2, super.AxisY[i - 1] + step / 2 * k1);
+        float k3 = getRhs().calculate(super.AxisX[i - 1] + step / 2, super.AxisY[i - 1] + step / 2 * k2);
+        float k4 = getRhs().calculate(super.AxisX[i], super.AxisY[i - 1] + step * k3);
+        return super.AxisY[i-1] + step / 6 * (k1 + 2 * k2 + 2 * k3 + k4);
     }
 }

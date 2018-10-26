@@ -5,9 +5,9 @@ public class ImprovedEulerMethod extends EulerMethod{
     }
 
     @Override
-    protected float CalculateY(int i) {
+    protected float CalculateY(int i, float step) {
         float k1 = getRhs().calculate(super.AxisX[i - 1], super.AxisY[i - 1]);
-        float k2 = getRhs().calculate(super.AxisX[i], super.AxisY[i-1] + super.getStep() * k1);
-        return super.AxisY[i - 1] + super.getStep() / 2 * (k1 + k2);
+        float k2 = getRhs().calculate(super.AxisX[i], super.AxisY[i-1] + step * k1);
+        return super.AxisY[i - 1] + step / 2 * (k1 + k2);
     }
 }
