@@ -15,8 +15,11 @@ public abstract class SolutionMethod extends Grid {
 
     @Override
     public void setSize(int size) {
-        super.setSize(size);
-        needCalculate = true;
+        if(super.size != size)
+        {
+            super.setSize(size);
+            needCalculate = true;
+        }
     }
 
     public float getX0() {
@@ -24,8 +27,11 @@ public abstract class SolutionMethod extends Grid {
     }
 
     public void setX0(float x0) {
-        this.x0 = x0;
-        needCalculate = true;
+        if(this.x0 != x0)
+        {
+            this.x0 = x0;
+            needCalculate = true;
+        }
     }
 
     public float getY0() {
@@ -33,8 +39,11 @@ public abstract class SolutionMethod extends Grid {
     }
 
     public void setY0(float y0) {
-        this.y0 = y0;
-        needCalculate = true;
+        if(this.y0 != y0)
+        {
+            this.y0 = y0;
+            needCalculate = true;
+        }
     }
 
     public float getxMax() {
@@ -42,8 +51,11 @@ public abstract class SolutionMethod extends Grid {
     }
 
     public void setxMax(float xMax) {
-        this.xMax = xMax;
-        needCalculate = true;
+        if(this.xMax != xMax)
+        {
+            this.xMax = xMax;
+            needCalculate = true;
+        }
     }
 
     public boolean isNeedCalculate() {
