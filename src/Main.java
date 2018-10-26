@@ -19,14 +19,9 @@ public class Main extends Application {
         launch(args);
     }
 
-    int size = 10;
-    int x0 = 10;
-    int y0 = -10;
-    int xMax = 15;
-
     @Override
     public void start(Stage primaryStage) {
-        ApplicationStatus.init();
+        ApplicationStatus.init(10, 0, 1, 10);
         Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
         primaryStage.setTitle("Computing Assignment by AY");
 
@@ -87,39 +82,38 @@ public class Main extends Application {
             clearLineChart(lineChart);
         });
 
-        ExactSolution exactSolution = new ExactSolution(size, x0, y0, xMax);
-
         btnExact.setOnAction(e -> {
-            ApplicationStatus.isExactPresent = addSeries(lineChart, exactSolution, ApplicationStatus.isExactPresent, "Exact Solution");
+            addSeries(lineChart, ApplicationStatus.exactSolution, ApplicationStatus.isExactPresent, "Exact Solution");
+            ApplicationStatus.isExactPresent = true;
         });
 
-        EulerMethod eulerMethod = new EulerMethod(size, x0, y0, xMax);
-        Grid eulerError = GetError(eulerMethod, exactSolution, size);
         btnEuler.setOnAction(e -> {
             if (ApplicationStatus.currentState == ApplicationStatus.State.SOLUTION) {
-                ApplicationStatus.isEulerPresent = addSeries(lineChart, eulerMethod, ApplicationStatus.isEulerPresent, "Euler's Method");
+                addSeries(lineChart, ApplicationStatus.eulerMethod, ApplicationStatus.isEulerPresent, "Euler's Method");
+                ApplicationStatus.isEulerPresent = true;
             } else if (ApplicationStatus.currentState == ApplicationStatus.State.ERROR) {
-                ApplicationStatus.isEulerPresent = addSeries(lineChart, eulerError, ApplicationStatus.isEulerPresent, "Euler's Error");
+                addSeries(lineChart, ApplicationStatus.eulerError, ApplicationStatus.isEulerPresent, "Euler's Error");
+                ApplicationStatus.isEulerPresent = true;
             }
         });
 
-        ImprovedEulerMethod improvedEulerMethod = new ImprovedEulerMethod(size, x0, y0, xMax);
-        Grid improvedEulerError = GetError(improvedEulerMethod, exactSolution, size);
         btnImprovedEuler.setOnAction(e -> {
             if (ApplicationStatus.currentState == ApplicationStatus.State.SOLUTION) {
-                ApplicationStatus.isImprovedPresent = addSeries(lineChart, improvedEulerMethod, ApplicationStatus.isImprovedPresent, "Improved Euler");
+                addSeries(lineChart, ApplicationStatus.improvedEulerMethod, ApplicationStatus.isImprovedPresent, "Improved Euler");
+                ApplicationStatus.isImprovedPresent = true;
             } else if (ApplicationStatus.currentState == ApplicationStatus.State.ERROR) {
-                ApplicationStatus.isImprovedPresent = addSeries(lineChart, improvedEulerError, ApplicationStatus.isImprovedPresent, "Improved Euler Error");
+                addSeries(lineChart, ApplicationStatus.improvedEulerError, ApplicationStatus.isImprovedPresent, "Improved Euler Error");
+                ApplicationStatus.isImprovedPresent = true;
             }
         });
 
-        KuttaMethod kuttaMethod = new KuttaMethod(size, x0, y0, xMax);
-        Grid kuttaError = GetError(kuttaMethod, exactSolution, size);
         btnKutta.setOnAction(e -> {
             if (ApplicationStatus.currentState == ApplicationStatus.State.SOLUTION) {
-                ApplicationStatus.isKuttaPresent = addSeries(lineChart, kuttaMethod, ApplicationStatus.isKuttaPresent, "Kutta Method");
+                addSeries(lineChart, ApplicationStatus.kuttaMethod, ApplicationStatus.isKuttaPresent, "Kutta Method");
+                ApplicationStatus.isKuttaPresent = true;
             } else if (ApplicationStatus.currentState == ApplicationStatus.State.ERROR) {
-                ApplicationStatus.isKuttaPresent = addSeries(lineChart, kuttaError, ApplicationStatus.isKuttaPresent, "Kutta Error");
+                addSeries(lineChart, ApplicationStatus.kuttaError, ApplicationStatus.isKuttaPresent, "Kutta Error");
+                ApplicationStatus.isKuttaPresent = true;
             }
         });
 
@@ -138,16 +132,7 @@ public class Main extends Application {
         primaryStage.setY((primScreenBounds.getHeight() - primaryStage.getHeight()) / 2);
     }
 
-    private Grid GetError(Grid someMethod, Grid exactSolution, int size) {
-        Grid error = new Grid(size);
-        for (int i = 0; i < error.size; i++) {
-            error.AxisX[i] = exactSolution.AxisX[i];
-            error.AxisY[i] = exactSolution.AxisY[i] - someMethod.AxisY[i];
-        }
-        return error;
-    }
-
-    private boolean addSeries(LineChart<Number, Number> lineChart, Grid solution, boolean presentFlag, final String string) {
+    private void addSeries(LineChart<Number, Number> lineChart, Grid solution, boolean presentFlag, final String string) {
         if (!presentFlag) {
             XYChart.Series series = new XYChart.Series();
             series.setName(string);
@@ -155,9 +140,7 @@ public class Main extends Application {
                 series.getData().add(new XYChart.Data(solution.AxisX[i], solution.AxisY[i]));
             }
             lineChart.getData().add(series);
-            presentFlag = true;
         }
-        return presentFlag;
     }
 
     private void clearLineChart(LineChart lineChart) {

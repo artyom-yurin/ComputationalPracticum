@@ -1,6 +1,6 @@
 public class ImprovedEulerMethod extends EulerMethod{
 
-    ImprovedEulerMethod(int size, float x0, float y0, int xMax) {
+    ImprovedEulerMethod(int size, float x0, float y0, float xMax) {
         super(size, x0, y0, xMax);
     }
 

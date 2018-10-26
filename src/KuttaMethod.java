@@ -1,5 +1,5 @@
 public class KuttaMethod extends EulerMethod {
-    KuttaMethod(int size, float x0, float y0, int xMax) {
+    KuttaMethod(int size, float x0, float y0, float xMax) {
         super(size, x0, y0, xMax);
     }
 

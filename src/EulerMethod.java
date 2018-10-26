@@ -1,17 +1,11 @@
 public class EulerMethod extends SolutionMethod {
-
-
     private RHS rhs;
 
 
-    EulerMethod(int size, float x0, float y0, int xMax) {
+    EulerMethod(int size, float x0, float y0, float xMax) {
         super(size,x0,y0,xMax);
         this.rhs = new RHS();
         CalculateFunction();
-    }
-
-    private void calculateStep() {
-
     }
 
     protected float CalculateY(int i, float step)
