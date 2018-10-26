@@ -24,8 +24,8 @@ public class Grid {
     }
 
     public void setSize(int size) {
-        this.size = size + 1;
-        AxisX = new float[size + 1];
-        AxisY = new float[size + 1];
+        this.size = size;
+        AxisX = new float[size];
+        AxisY = new float[size];
     }
 }

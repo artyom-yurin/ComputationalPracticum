@@ -46,7 +46,7 @@ public class ApplicationStatus {
         improvedEulerError = GetError(improvedEulerMethod);
     }
 
-    public static void Recalculate(int size, float x0, float y0, float xMax)
+    public static boolean Recalculate(int size, float x0, float y0, float xMax)
     {
         SetNewParameters(size, x0, y0, xMax);
         SetNewParametersForMethod(exactSolution);
@@ -66,6 +66,11 @@ public class ApplicationStatus {
             kuttaMethod.CalculateFunction();
             kuttaError = GetError(kuttaMethod);
         }
+        else
+        {
+            return false;
+        }
+        return true;
     }
 
     private static void SetNewParameters(int size, float x0, float y0, float xMax)
