@@ -20,8 +20,15 @@ public class ApplicationStatus {
     public static Grid kuttaError;
     public static Grid improvedEulerError;
 
+    public static int size;
+    public static float x0;
+    public static float y0;
+    public static float xMax;
+
     public static void init(int size, float x0, float y0, float xMax)
     {
+        SetNewParameters(size, x0, y0, xMax);
+
         currentState = State.SOLUTION;
 
         isExactPresent = false;
@@ -41,26 +48,35 @@ public class ApplicationStatus {
 
     public static void Recalculate(int size, float x0, float y0, float xMax)
     {
-        SetupParameters(exactSolution, size, x0, y0, xMax);
+        SetNewParameters(size, x0, y0, xMax);
+        SetNewParametersForMethod(exactSolution);
         if(exactSolution.needCalculate)
         {
             exactSolution.CalculateFunction();
 
-            SetupParameters(eulerMethod, size, x0, y0, xMax);
+            SetNewParametersForMethod(eulerMethod);
             eulerMethod.CalculateFunction();
             eulerError = GetError(eulerMethod);
 
-            SetupParameters(improvedEulerMethod, size, x0, y0, xMax);
+            SetNewParametersForMethod(improvedEulerMethod);
             improvedEulerMethod.CalculateFunction();
             improvedEulerError = GetError(improvedEulerMethod);
 
-            SetupParameters(kuttaMethod, size, x0, y0, xMax);
+            SetNewParametersForMethod(kuttaMethod);
             kuttaMethod.CalculateFunction();
             kuttaError = GetError(kuttaMethod);
         }
     }
 
-    private static void SetupParameters(SolutionMethod method, int size, float x0, float y0, float xMax)
+    private static void SetNewParameters(int size, float x0, float y0, float xMax)
+    {
+        ApplicationStatus.x0 = x0;
+        ApplicationStatus.y0 = y0;
+        ApplicationStatus.xMax = xMax;
+        ApplicationStatus.size = size;
+    }
+
+    private static void SetNewParametersForMethod(SolutionMethod method)
     {
         method.setSize(size);
         method.setX0(x0);
