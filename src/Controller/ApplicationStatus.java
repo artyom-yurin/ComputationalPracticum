@@ -1,3 +1,8 @@
+package Controller;
+
+
+import Model.*;
+
 public class ApplicationStatus {
     public enum State {SOLUTION, ERROR}
 
@@ -50,7 +55,7 @@ public class ApplicationStatus {
     {
         SetNewParameters(size, x0, y0, xMax);
         SetNewParametersForMethod(exactSolution);
-        if(exactSolution.needCalculate)
+        if(exactSolution.isNeedCalculate())
         {
             exactSolution.CalculateFunction();
 
@@ -98,10 +103,17 @@ public class ApplicationStatus {
     }
 
     private static Grid GetError(Grid someMethod) {
-        Grid error = new Grid(someMethod.size);
-        for (int i = 0; i < error.size; i++) {
-            error.AxisX[i] = exactSolution.AxisX[i];
-            error.AxisY[i] = exactSolution.AxisY[i] - someMethod.AxisY[i];
+        Grid error = new Grid(someMethod.getSize());
+        float[] exactAxisX = exactSolution.getAxisX();
+        float[] exactAxisY = exactSolution.getAxisY();
+
+        float[] someAxisY = someMethod.getAxisY();
+
+        float[] axisX = error.getAxisX();
+        float[] axisY = error.getAxisY();
+        for (int i = 0; i < error.getSize(); i++) {
+            axisX[i] = exactAxisX[i];
+            axisY[i] = exactAxisY[i] - someAxisY[i];
         }
         return error;
     }

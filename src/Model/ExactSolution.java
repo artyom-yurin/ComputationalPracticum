@@ -1,3 +1,5 @@
+package Model;
+
 public class ExactSolution extends SolutionMethod {
 
     public ExactSolution(int size, float x0, float y0, float xMax) {

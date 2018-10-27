@@ -1,9 +1,11 @@
+package Model;
+
 public class Grid {
     protected float AxisX[];
     protected float AxisY[];
     protected int size;
 
-    Grid(int size)
+    public Grid(int size)
     {
         AxisX = new float[size];
         AxisY = new float[size];

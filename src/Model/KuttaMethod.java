@@ -1,5 +1,7 @@
+package Model;
+
 public class KuttaMethod extends EulerMethod {
-    KuttaMethod(int size, float x0, float y0, float xMax) {
+    public KuttaMethod(int size, float x0, float y0, float xMax) {
         super(size, x0, y0, xMax);
     }
 

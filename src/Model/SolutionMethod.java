@@ -1,3 +1,5 @@
+package Model;
+
 public abstract class SolutionMethod extends Grid {
 
     protected float x0;
@@ -5,7 +7,7 @@ public abstract class SolutionMethod extends Grid {
     protected float xMax;
     protected boolean needCalculate;
 
-    SolutionMethod(int size, float x0, float y0, float xMax) {
+    public SolutionMethod(int size, float x0, float y0, float xMax) {
         super(size);
         this.x0 = x0;
         this.y0 = y0;

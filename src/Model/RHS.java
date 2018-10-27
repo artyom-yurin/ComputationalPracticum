@@ -1,3 +1,5 @@
+package Model;
+
 public class RHS {
 
     public float calculate(float x, float y)
