@@ -9,7 +9,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import static VIew.View.*;
+import static View.CommonView.*;
+import static View.LeftMenuView.InitLeftMenu;
+import static View.LineChartView.InitLineChar;
+import static View.MenuView.InitMenuBar;
 
 
 public class Main extends Application {

@@ -1,85 +1,22 @@
-package VIew;
+package View;
 
 import Controller.ApplicationStatus;
-import Model.Grid;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.stage.Screen;
-import javafx.stage.Stage;
 
-public class View {
+import static View.LineChartView.addSeries;
+import static View.LineChartView.clearLineChart;
 
-    public static final String SOLUTION_TITLE = "Solution of y' = - y - x*x";
-    public static final String ERROR_TITLE = "Error analysis of y' = - y - x*x";
-
-    public static Button findButton(Node pane, String name)
-    {
-        if(pane instanceof Pane)
-        {
-            for (Node node :((Pane)pane).getChildren()){
-                if((node instanceof Button) && ((Button)node).getText().compareTo(name) == 0)
-                {
-                    return (Button)node;
-                }
-            }
-        }
-        return null;
-    }
-
-    public static MenuBar InitMenuBar(LineChart<Number, Number> lineChart, BorderPane leftMenu)
-    {
-        MenuBar menuBar = new MenuBar();
-
-        Menu modeMenu = new Menu("Mode");
-
-        RadioMenuItem btnGraphics = new RadioMenuItem("Solutions");
-        RadioMenuItem btnErrors = new RadioMenuItem("Errors");
-
-        ToggleGroup group = new ToggleGroup();
-        btnGraphics.setToggleGroup(group);
-        btnErrors.setToggleGroup(group);
-        btnGraphics.setSelected(true);
-
-        modeMenu.getItems().addAll(btnGraphics, btnErrors);
-
-        menuBar.getMenus().addAll(modeMenu);
-
-        Button btnExact = findButton(leftMenu.getBottom(), "Exact");
-
-        btnGraphics.setOnAction(e -> {
-            if (ApplicationStatus.currentState != ApplicationStatus.State.SOLUTION) {
-                clearLineChart(lineChart);
-                lineChart.setTitle(SOLUTION_TITLE);
-                ApplicationStatus.currentState = ApplicationStatus.State.SOLUTION;
-                if(btnExact != null)
-                {
-                    btnExact.setVisible(true);
-                }
-            }
-        });
-
-        btnErrors.setOnAction(e -> {
-            if (ApplicationStatus.currentState != ApplicationStatus.State.ERROR) {
-                clearLineChart(lineChart);
-                lineChart.setTitle(ERROR_TITLE);
-                ApplicationStatus.currentState = ApplicationStatus.State.ERROR;
-                if(btnExact != null)
-                {
-                    btnExact.setVisible(false);
-                }
-            }
-        });
-
-        return menuBar;
-    }
+public class LeftMenuView {
 
     public static BorderPane InitLeftMenu(LineChart<Number, Number> lineChart) {
         BorderPane leftMenu = new BorderPane();
@@ -93,23 +30,6 @@ public class View {
         leftMenu.setBottom(controlButtons);
 
         return leftMenu;
-    }
-
-    private static GridPane InitForm()
-    {
-        GridPane form = new GridPane();
-        form.setAlignment(Pos.TOP_CENTER);
-        form.setPadding(new Insets(10, 0, 0, 10));
-        form.setHgap(10);
-        form.setVgap(10);
-        ColumnConstraints columnOneConstraints = new ColumnConstraints(50, 50, Double.MAX_VALUE);
-        columnOneConstraints.setHalignment(HPos.CENTER);
-
-        ColumnConstraints columnTwoConstrains = new ColumnConstraints(100, 100, Double.MAX_VALUE);
-        columnTwoConstrains.setHgrow(Priority.ALWAYS);
-
-        form.getColumnConstraints().addAll(columnOneConstraints, columnTwoConstrains);
-        return form;
     }
 
     private static GridPane InitParametersForm(LineChart<Number, Number> lineChart) {
@@ -137,6 +57,11 @@ public class View {
         newParameterButton.setOnAction(e -> {
             if(!isFill(textXStart, textYStart, textXMax, textSize))
             {
+                return;
+            }
+            if(Integer.parseInt(textSize.getText()) < 2)
+            {
+                WarningWindow("Invalid size", "Please enter size more than 1");
                 return;
             }
             if (ApplicationStatus.Recalculate(Integer.parseInt(textSize.getText()), Float.parseFloat(textXStart.getText()), Float.parseFloat(textYStart.getText()), Float.parseFloat(textXMax.getText()))) {
@@ -184,6 +109,26 @@ public class View {
         form.add(textField, 1, row);
     }
 
+    private static TextField addFloatNumericalTextField(String initValue) {
+        TextField textField = new TextField(initValue);
+        textField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("[\\-]?\\d{0,4}([\\.]\\d{0,4})?")) {
+                textField.setText(oldValue);
+            }
+        });
+        return textField;
+    }
+
+    private static TextField addIntegerNumericalTextField(String initValue) {
+        TextField textField = new TextField(initValue);
+        textField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d{0,4}")) {
+                textField.setText(oldValue);
+            }
+        });
+        return textField;
+    }
+
     private static VBox InitControlButtons(LineChart<Number, Number> lineChart) {
         Button btnEuler = addVerticalButton("Euler");
         Button btnExact = addVerticalButton("Exact");
@@ -219,6 +164,23 @@ public class View {
         return vbButtons;
     }
 
+    private static GridPane InitForm()
+    {
+        GridPane form = new GridPane();
+        form.setAlignment(Pos.TOP_CENTER);
+        form.setPadding(new Insets(10, 0, 0, 10));
+        form.setHgap(10);
+        form.setVgap(10);
+        ColumnConstraints columnOneConstraints = new ColumnConstraints(50, 50, Double.MAX_VALUE);
+        columnOneConstraints.setHalignment(HPos.CENTER);
+
+        ColumnConstraints columnTwoConstrains = new ColumnConstraints(100, 100, Double.MAX_VALUE);
+        columnTwoConstrains.setHgrow(Priority.ALWAYS);
+
+        form.getColumnConstraints().addAll(columnOneConstraints, columnTwoConstrains);
+        return form;
+    }
+
     private static void ExactBtnAction(LineChart<Number, Number> lineChart) {
         addSeries(lineChart, ApplicationStatus.exactSolution, ApplicationStatus.isExactPresent, "Exact Solution");
         ApplicationStatus.isExactPresent = true;
@@ -252,62 +214,6 @@ public class View {
             addSeries(lineChart, ApplicationStatus.kuttaError, ApplicationStatus.isKuttaPresent, "Kutta Error");
             ApplicationStatus.isKuttaPresent = true;
         }
-    }
-
-    public static void InitPrimaryStage(Stage primaryStage) {
-        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        primaryStage.setTitle("Computing Assignment by AY");
-        primaryStage.setMaximized(true);
-        primaryStage.setMinHeight(500);
-        primaryStage.setMinWidth(800);
-        primaryStage.setX((primScreenBounds.getWidth() - primaryStage.getWidth()) / 2);
-        primaryStage.setY((primScreenBounds.getHeight() - primaryStage.getHeight()) / 2);
-    }
-
-    private static TextField addFloatNumericalTextField(String initValue) {
-        TextField textField = new TextField(initValue);
-        textField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("[\\-]?\\d{0,4}([\\.]\\d{0,4})?")) {
-                textField.setText(oldValue);
-            }
-        });
-        return textField;
-    }
-
-    private static TextField addIntegerNumericalTextField(String initValue) {
-        TextField textField = new TextField(initValue);
-        textField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d{0,4}")) {
-                textField.setText(oldValue);
-            }
-        });
-        return textField;
-    }
-
-    public static LineChart<Number, Number> InitLineChar(String title) {
-        final NumberAxis xAxis = new NumberAxis();
-        final NumberAxis yAxis = new NumberAxis();
-        LineChart<Number, Number> newLineChart = new LineChart<Number, Number>(xAxis, yAxis);
-        newLineChart.setTitle(title);
-        return newLineChart;
-    }
-
-    private static void addSeries(LineChart<Number, Number> lineChart, Grid solution, boolean presentFlag, final String string) {
-        if (!presentFlag) {
-            XYChart.Series series = new XYChart.Series();
-            series.setName(string);
-            float[] axisX = solution.getAxisX();
-            float[] axisY = solution.getAxisY();
-            for (int i = 0; i < solution.getSize(); i++) {
-                series.getData().add(new XYChart.Data(axisX[i], axisY[i]));
-            }
-            lineChart.getData().add(series);
-        }
-    }
-
-    private static void clearLineChart(LineChart lineChart) {
-        lineChart.getData().clear();
-        ApplicationStatus.clearGraphics();
     }
 
     private static Button addVerticalButton(String name) {
