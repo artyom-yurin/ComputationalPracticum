@@ -10,7 +10,8 @@ import javafx.stage.Stage;
 public class CommonView {
 
     public static final String SOLUTION_TITLE = "Solution of y' = - y - x*x";
-    public static final String ERROR_TITLE = "Error analysis of y' = - y - x*x";
+    public static final String ERROR_TITLE = "Errors of y' = - y - x*x";
+    public static final String ERROR_ANALYSIS_TITLE = "Error analysis of y' = - y - x*x";
 
     public static Button findButton(Node pane, String name)
     {

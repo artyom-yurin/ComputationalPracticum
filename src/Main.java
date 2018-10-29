@@ -22,9 +22,9 @@ public class Main extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws CloneNotSupportedException {
 
-        ApplicationStatus.init(10, 0, 1, 10);
+        ApplicationStatus.init(10, 0, 1, 10, 11);
 
         BorderPane layout = new BorderPane();
 

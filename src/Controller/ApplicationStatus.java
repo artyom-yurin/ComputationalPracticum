@@ -4,7 +4,7 @@ package Controller;
 import Model.*;
 
 public class ApplicationStatus {
-    public enum State {SOLUTION, ERROR}
+    public enum State {SOLUTION, ERROR, ANALYSIS_ERROR}
 
     public static State currentState;
 
@@ -25,14 +25,19 @@ public class ApplicationStatus {
     public static Grid kuttaError;
     public static Grid improvedEulerError;
 
+    public static Grid eulerGlobalError;
+    public static Grid kuttaGlobalError;
+    public static Grid improvedEulerGlobalError;
+
     public static int size;
     public static float x0;
     public static float y0;
     public static float xMax;
+    public static int maxSize;
 
-    public static void init(int size, float x0, float y0, float xMax)
-    {
+    public static void init(int size, float x0, float y0, float xMax, int maxSize) throws CloneNotSupportedException {
         SetNewParameters(size, x0, y0, xMax);
+        ApplicationStatus.maxSize = maxSize;
 
         currentState = State.SOLUTION;
 
@@ -49,10 +54,13 @@ public class ApplicationStatus {
         eulerError = GetError(eulerMethod);
         kuttaError = GetError(kuttaMethod);
         improvedEulerError = GetError(improvedEulerMethod);
+
+        eulerGlobalError = GetGlobalError(eulerMethod);
+        improvedEulerGlobalError = GetGlobalError(improvedEulerMethod);
+        kuttaGlobalError = GetGlobalError(kuttaMethod);
     }
 
-    public static boolean Recalculate(int size, float x0, float y0, float xMax)
-    {
+    public static boolean Recalculate(int size, float x0, float y0, float xMax, int maxSize) throws CloneNotSupportedException {
         SetNewParameters(size, x0, y0, xMax);
         SetNewParametersForMethod(exactSolution);
         if(exactSolution.isNeedCalculate())
@@ -70,12 +78,31 @@ public class ApplicationStatus {
             SetNewParametersForMethod(kuttaMethod);
             kuttaMethod.CalculateFunction();
             kuttaError = GetError(kuttaMethod);
+
+            if( ApplicationStatus.maxSize != maxSize) {
+                ApplicationStatus.maxSize = maxSize;
+
+                eulerGlobalError = GetGlobalError(eulerMethod);
+                improvedEulerGlobalError = GetGlobalError(improvedEulerMethod);
+                kuttaGlobalError = GetGlobalError(kuttaMethod);
+            }
+
+                return true;
         }
-        else
+        else if( ApplicationStatus.maxSize != maxSize)
         {
-            return false;
+            ApplicationStatus.maxSize = maxSize;
+
+            eulerGlobalError = GetGlobalError(eulerMethod);
+            improvedEulerGlobalError = GetGlobalError(improvedEulerMethod);
+            kuttaGlobalError = GetGlobalError(kuttaMethod);
+
+            if(currentState == State.ANALYSIS_ERROR)
+            {
+                return true;
+            }
         }
-        return true;
+        return false;
     }
 
     private static void SetNewParameters(int size, float x0, float y0, float xMax)
@@ -113,8 +140,42 @@ public class ApplicationStatus {
         float[] axisY = error.getAxisY();
         for (int i = 0; i < error.getSize(); i++) {
             axisX[i] = exactAxisX[i];
-            axisY[i] = exactAxisY[i] - someAxisY[i];
+            axisY[i] = Math.abs(exactAxisY[i] - someAxisY[i]);
         }
         return error;
+    }
+
+    private static Grid GetGlobalError(SolutionMethod someMethod) throws CloneNotSupportedException {
+
+
+        Grid globalError = new Grid(ApplicationStatus.maxSize - ApplicationStatus.size + 1);
+        SolutionMethod solutionMethod = (SolutionMethod)someMethod.clone();
+        SolutionMethod exactMethod = (SolutionMethod)exactSolution.clone();
+
+        float[] axisX = globalError.getAxisX();
+        float[] axisY = globalError.getAxisY();
+
+        for(int i = 0; i < ApplicationStatus.maxSize - ApplicationStatus.size + 1; i++)
+        {
+            int x = ApplicationStatus.size + i;
+            solutionMethod.setSize(x);
+            exactMethod.setSize(x);
+            exactMethod.CalculateFunction();
+            solutionMethod.CalculateFunction();
+            float[] solutionAxisY = solutionMethod.getAxisY();
+            float[] exactAxisY = exactMethod.getAxisY();
+            float y = 0;
+            for (int j = 0; j < x; j++) {
+                float currentY = Math.abs(exactAxisY[j] - solutionAxisY[j]);
+                if (y < currentY)
+                {
+                    y = currentY;
+                }
+            }
+            axisX[i] = x;
+            axisY[i] = y;
+        }
+
+        return globalError;
     }
 }

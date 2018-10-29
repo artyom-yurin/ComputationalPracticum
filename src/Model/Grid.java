@@ -1,6 +1,6 @@
 package Model;
 
-public class Grid {
+public class Grid implements Cloneable{
     protected float AxisX[];
     protected float AxisY[];
     protected int size;
@@ -29,5 +29,10 @@ public class Grid {
         this.size = size;
         AxisX = new float[size];
         AxisY = new float[size];
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

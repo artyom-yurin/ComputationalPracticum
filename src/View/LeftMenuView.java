@@ -51,27 +51,40 @@ public class LeftMenuView {
         TextField textSize = addIntegerNumericalTextField("" + ApplicationStatus.size);
         setSpace(form, labelSize, textSize, 3);
 
+        Label labelMaxSize = new Label("Max Size");
+        TextField textMaxSize = addIntegerNumericalTextField("" + (ApplicationStatus.maxSize));
+        setSpace(form, labelMaxSize, textMaxSize, 4);
+
         Button newParameterButton = addVerticalButton("Set new parameters");
-        form.add(newParameterButton, 0, 4, 2, 1);
+        form.add(newParameterButton, 0, 5, 2, 1);
 
         newParameterButton.setOnAction(e -> {
-            if(!isFill(textXStart, textYStart, textXMax, textSize))
+            if(!isFill(textXStart, textYStart, textXMax, textSize, textMaxSize))
             {
                 return;
             }
             if(Integer.parseInt(textSize.getText()) < 2)
             {
-                WarningWindow("Invalid size", "Please enter size more than 1");
+                WarningWindow("Invalid size", "Please enter number more than 1");
                 return;
             }
-            if (ApplicationStatus.Recalculate(Integer.parseInt(textSize.getText()), Float.parseFloat(textXStart.getText()), Float.parseFloat(textYStart.getText()), Float.parseFloat(textXMax.getText()))) {
-                clearLineChart(lineChart);
+            if(Integer.parseInt(textMaxSize.getText()) <= Integer.parseInt(textSize.getText()))
+            {
+                WarningWindow("Invalid Max size", "Please enter number more than size");
+                return;
+            }
+            try {
+                if (ApplicationStatus.Recalculate(Integer.parseInt(textSize.getText()), Float.parseFloat(textXStart.getText()), Float.parseFloat(textYStart.getText()), Float.parseFloat(textXMax.getText()), Integer.parseInt(textMaxSize.getText()))) {
+                    clearLineChart(lineChart);
+                }
+            } catch (CloneNotSupportedException e1) {
+                e1.printStackTrace();
             }
         });
         return form;
     }
 
-    private static boolean isFill(TextField textXStart, TextField textYStart, TextField textXMax, TextField textSize)
+    private static boolean isFill(TextField textXStart, TextField textYStart, TextField textXMax, TextField textSize, TextField textMaxSize)
     {
         if (textXStart.getText().isEmpty()) {
             WarningWindow("Invalid init x", "Please fill X0 field");
@@ -88,6 +101,10 @@ public class LeftMenuView {
         }
         if (textSize.getText().isEmpty()) {
             WarningWindow("Invalid size", "Please fill Size field");
+            return false;
+        }
+        if (textMaxSize.getText().isEmpty()) {
+            WarningWindow("Invalid max size", "Please fill Max Size field");
             return false;
         }
         return true;
@@ -193,6 +210,10 @@ public class LeftMenuView {
         } else if (ApplicationStatus.currentState == ApplicationStatus.State.ERROR) {
             addSeries(lineChart, ApplicationStatus.eulerError, ApplicationStatus.isEulerPresent, "Euler's Error");
             ApplicationStatus.isEulerPresent = true;
+        } else if (ApplicationStatus.currentState == ApplicationStatus.State.ANALYSIS_ERROR)
+        {
+            addSeries(lineChart, ApplicationStatus.eulerGlobalError, ApplicationStatus.isEulerPresent, "Euler's Error");
+            ApplicationStatus.isEulerPresent = true;
         }
     }
 
@@ -203,6 +224,10 @@ public class LeftMenuView {
         } else if (ApplicationStatus.currentState == ApplicationStatus.State.ERROR) {
             addSeries(lineChart, ApplicationStatus.improvedEulerError, ApplicationStatus.isImprovedPresent, "Improved Euler Error");
             ApplicationStatus.isImprovedPresent = true;
+        } else if (ApplicationStatus.currentState == ApplicationStatus.State.ANALYSIS_ERROR)
+        {
+            addSeries(lineChart, ApplicationStatus.improvedEulerGlobalError, ApplicationStatus.isImprovedPresent, "Improved Euler Error");
+            ApplicationStatus.isImprovedPresent = true;
         }
     }
 
@@ -212,6 +237,10 @@ public class LeftMenuView {
             ApplicationStatus.isKuttaPresent = true;
         } else if (ApplicationStatus.currentState == ApplicationStatus.State.ERROR) {
             addSeries(lineChart, ApplicationStatus.kuttaError, ApplicationStatus.isKuttaPresent, "Kutta Error");
+            ApplicationStatus.isKuttaPresent = true;
+        } else if (ApplicationStatus.currentState == ApplicationStatus.State.ANALYSIS_ERROR)
+        {
+            addSeries(lineChart, ApplicationStatus.kuttaGlobalError, ApplicationStatus.isKuttaPresent, "Kutta Error");
             ApplicationStatus.isKuttaPresent = true;
         }
     }

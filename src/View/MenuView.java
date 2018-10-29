@@ -5,9 +5,7 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 
-import static View.CommonView.ERROR_TITLE;
-import static View.CommonView.SOLUTION_TITLE;
-import static View.CommonView.findButton;
+import static View.CommonView.*;
 import static View.LineChartView.clearLineChart;
 
 public class MenuView {
@@ -19,13 +17,15 @@ public class MenuView {
 
         RadioMenuItem btnGraphics = new RadioMenuItem("Solutions");
         RadioMenuItem btnErrors = new RadioMenuItem("Errors");
+        RadioMenuItem btnErrorAnalysis = new RadioMenuItem("Analysis Error");
 
         ToggleGroup group = new ToggleGroup();
         btnGraphics.setToggleGroup(group);
         btnErrors.setToggleGroup(group);
+        btnErrorAnalysis.setToggleGroup(group);
         btnGraphics.setSelected(true);
 
-        modeMenu.getItems().addAll(btnGraphics, btnErrors);
+        modeMenu.getItems().addAll(btnGraphics, btnErrors, btnErrorAnalysis);
 
         menuBar.getMenus().addAll(modeMenu);
 
@@ -48,6 +48,18 @@ public class MenuView {
                 clearLineChart(lineChart);
                 lineChart.setTitle(ERROR_TITLE);
                 ApplicationStatus.currentState = ApplicationStatus.State.ERROR;
+                if(btnExact != null)
+                {
+                    btnExact.setVisible(false);
+                }
+            }
+        });
+
+        btnErrorAnalysis.setOnAction(e -> {
+            if (ApplicationStatus.currentState != ApplicationStatus.State.ANALYSIS_ERROR) {
+                clearLineChart(lineChart);
+                lineChart.setTitle(ERROR_ANALYSIS_TITLE);
+                ApplicationStatus.currentState = ApplicationStatus.State.ANALYSIS_ERROR;
                 if(btnExact != null)
                 {
                     btnExact.setVisible(false);
